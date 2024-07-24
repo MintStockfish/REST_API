@@ -1,0 +1,321 @@
+openapi: 3.0.0
+info:
+  title: Game Store API
+  version: 1.0.0
+  description: API for managing games in a game store
+servers:
+  - url: http://localhost:3000
+
+paths:
+  /login:
+    post:
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '500':
+          description: Error while logging in
+          
+  /register:
+    post:
+      summary: Register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterResponse'
+        '403':
+          description: User with this name or email already exists 
+
+
+  /games:
+    get:
+      summary: Get list of all games
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:    
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Game'
+                  
+  /addGame:
+    post:
+      summary: Add a new game
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddGameRequest'
+      responses:
+        '201':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddGameResponse'
+        '409':
+          description: Game with this name already exists
+        '403':
+          description: You don't have permission to add games
+        '400':
+          description: JWT token is expired
+        '500':
+          description: Failed to add the game
+          
+  /buyGame:
+    post:
+      summary: Buy a game
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BuyGameRequest'
+      responses:
+        '201':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BuyGameResponse'
+        '409':
+          description: You already bought this game
+        '400':
+          description: JWT token is expired
+        '500':
+          description: Failed to buy the game
+          
+  /updateGame:
+    put:
+      summary: Update a game
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateGameRequest'
+      responses:
+        '201':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateGameResponse'
+        '403':
+          description: You don't have permission to update games
+        '409':
+          description: This name already in use
+        '404':
+          description: Game is not found
+        '400':
+          description: JWT token is expired
+        '500':
+          description: Failed to update the game
+          
+  /deleteGame:
+    delete:
+      summary: Delete a game
+      parameters:
+        - in: query
+          name: nameToDelete
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: accessToken
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteGameResponse'
+        '403':
+          description: You don't have permission to delete games
+        '404':
+          description: Game is not found
+        '400':
+          description: JWT token is expired
+        '500':
+          description: Failed to delete the game
+          
+components:
+  schemas:
+    LoginRequest:
+      type: object
+      required:
+        - name
+        - password
+      properties:
+        name:
+          type: string
+        password:
+          type: string
+          
+    LoginResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+        refresh_token:
+          type: string
+        message:
+          type: string
+          
+    RegisterRequest:
+      type: object
+      required:
+        - name
+        - password
+        - email
+      properties:
+        name:
+          type: string
+        password:
+          type: string
+        email:
+          type: string
+          
+    RegisterResponse:
+      type: object
+      properties:
+        message:
+          type: string
+  
+    Game:
+      type: object
+      properties:
+        name:
+          type: string
+        genres:
+          type: array
+          items:
+            type: string
+        platforms:
+          type: array
+          items:
+            type: string
+        releaseYear:
+          type: integer
+        developer:
+          type: string
+          
+    AddGameRequest:
+      type: object
+      required:
+        - name
+        - genres
+        - platforms
+        - releaseYear
+        - developer
+        - accessToken
+      properties:
+        name:
+          type: string
+        genres:
+          type: array
+          items:
+            type: string
+        platforms:
+          type: array
+          items:
+            type: string
+        releaseYear:
+          type: integer
+        developer:
+          type: string
+        accessToken:
+          type: string
+          
+    AddGameResponse:
+      type: object
+      properties:
+        message:
+          type: string
+    BuyGameRequest:
+      type: object
+      required:
+        - name
+        - accessToken
+      properties:
+        name:
+          type: string
+        accessToken:
+          type: string
+          
+    BuyGameResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          
+    UpdateGameRequest:
+      type: object
+      required:
+        - nameToUpdate
+        - name
+        - genres
+        - platforms
+        - releaseYear
+        - developer
+        - accessToken
+      properties:
+        nameToUpdate:
+          type: string
+        name:
+          type: string
+        genres:
+          type: array
+          items:
+            type: string
+        platforms:
+          type: array
+          items:
+            type: string
+        releaseYear:
+          type: integer
+        developer:
+          type: string
+        accessToken:
+          type: string
+          
+    UpdateGameResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          
+   
+          
+    DeleteGameResponse:
+      type: object
+      properties:
+        message:
+          type: string
+
+       
